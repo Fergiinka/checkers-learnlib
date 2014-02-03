@@ -1,0 +1,10 @@
+<#if licenseFirst??>
+${licenseFirst}
+<!--#if-->
+${licensePrefix}Copyright (C) ${date?date?string("yyyy")} Lucie Matusova
+${licensePrefix}
+${licensePrefix}xmatus21@stud.fit.vutbr.cz
+${licensePrefix}
+<#if licenseLast??>
+${licenseLast}
+<!--#if-->
