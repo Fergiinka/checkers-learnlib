@@ -150,9 +150,6 @@ public class WBSlaveLearner {
         MealyMachine<?, WBSlaveInput, ?, String> result = experiment.getFinalHypothesis();
 
         // close the connection with ModelSim by sending ESCAPE character
-        byte[] bytes = new byte[]{0x1b};
-        String esc = new String(bytes, "UTF-8");
-        my_telnet.sendCommand(esc, false);
         my_telnet.disconnect();
 
         // report results

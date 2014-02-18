@@ -21,6 +21,7 @@ package diplomka.telnet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import org.apache.commons.net.telnet.TelnetClient;
 
 /**
@@ -128,7 +129,10 @@ public class AutoTelnetClient {
         }
     }
 
-    public void disconnect() {
+    public void disconnect() throws UnsupportedEncodingException {
+        byte[] bytes = new byte[]{0x1b};
+        String esc = new String(bytes, "UTF-8");
+        sendCommand(esc, false);
         try {
             telnet.disconnect();
         } catch (IOException e) {
