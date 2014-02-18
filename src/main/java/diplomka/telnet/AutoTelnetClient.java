@@ -14,31 +14,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-// ---------------------------------------------------------------------------
+// Inspired by
 //http://stackoverflow.com/questions/1195809/looking-for-java-telnet-emulator
-// ---------------------------------------------------------------------------
-
-package cz.vutbr.fit.upsy.diplomka;
+package diplomka.telnet;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import org.apache.commons.net.telnet.TelnetClient;
 
 /**
  *
  * @author Lucie Matusova <xmatus21@stud.fit.vutbr.cz>
  */
-
-public class AutomatedTelnetClient {
+public class AutoTelnetClient {
 
     private final TelnetClient telnet = new TelnetClient();
     private InputStream in;
     private PrintStream out;
 
-    public AutomatedTelnetClient(String server, int port) {
+    private final char endChar = ' ';
+    private final String ACK = "ACK";
+
+    public AutoTelnetClient(String server, int port) {
         try {
             // Connect to the specified server
             telnet.connect(server, port);
@@ -61,13 +59,15 @@ public class AutomatedTelnetClient {
         }
     }
 
-    public String readResult(char endChar, boolean verbose) {
+    public String readResult(boolean verbose) {
         try {
             StringBuilder sb = new StringBuilder();
             char ch = (char) in.read();
-            
+
             while (true) {
-                if (verbose) System.out.print(ch);
+                if (verbose) {
+                    System.out.print(ch);
+                }
                 if (ch == endChar) {
                     return sb.toString();
                 }
@@ -80,18 +80,20 @@ public class AutomatedTelnetClient {
         return null;
     }
 
-    public String readUntil(String pattern, boolean verbose) {
+    public Boolean readUntil(String pattern, boolean verbose) {
         try {
             char lastChar = pattern.charAt(pattern.length() - 1);
             StringBuilder sb = new StringBuilder();
 
             char ch = (char) in.read();
             while (true) {
-                if (verbose) System.out.print(ch);
+                if (verbose) {
+                    System.out.print(ch);
+                }
                 sb.append(ch);
                 if (ch == lastChar) {
                     if (sb.toString().endsWith(pattern)) {
-                        return sb.toString();
+                        return true; // sb.toString();
                     }
                 }
                 ch = (char) in.read();
@@ -99,16 +101,31 @@ public class AutomatedTelnetClient {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return null;
+        return false;
     }
 
-    public String sendCommand(String command) {
+    /*
+     * Sends a given command over telnet and waits for acknowledge.
+     */
+    public void sendCommand(String command) {
+        sendCommand(command, true);
+    }
+
+    public void sendCommand(String command, boolean wait) {
         try {
             write(command);
+            if (wait) {
+                waitForAck();
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return null;
+    }
+
+    private void waitForAck() {
+        while (!readUntil(ACK, false)) {
+            ;
+        }
     }
 
     public void disconnect() {
@@ -119,36 +136,4 @@ public class AutomatedTelnetClient {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            AutomatedTelnetClient my_telnet = new AutomatedTelnetClient("localhost", 2000);
-
-            my_telnet.sendCommand("force x 1");
-            Thread.sleep(1000);
-
-            my_telnet.sendCommand("force y 0");
-            Thread.sleep(1000);
-
-            my_telnet.sendCommand("run 1 ms");
-            Thread.sleep(1000);
-
-            my_telnet.sendCommand("examine -value /test_tb/z");
-            Thread.sleep(1000);
-            my_telnet.readUntil("result: ", false);
-            
-            char resEndChar = ' ';
-            String result = my_telnet.readResult(resEndChar, true);
-            
-            // sending ESCAPE
-            byte[] bytes = new byte[]{0x1b};
-            String esc = new String(bytes, "UTF-8");
-            my_telnet.sendCommand(esc);
-
-            my_telnet.disconnect();
-            System.out.println("DONE. Disconnected.");
-
-        } catch (UnsupportedEncodingException | InterruptedException e) {
-            System.out.println(e.getMessage());
-        }
-    }
 }

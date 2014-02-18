@@ -1,4 +1,4 @@
-package cz.vutbr.fit.upsy.example;
+package diplomka.example;
 
 import java.io.IOException;
 import java.io.Writer;
