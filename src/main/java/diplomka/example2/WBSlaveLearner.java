@@ -108,18 +108,6 @@ public class WBSlaveLearner {
         suffixes.add(Word.fromSymbols(DI_6));
         suffixes.add(Word.fromSymbols(DI_7));
 
-        /* 
-         Interface LearningAlgorithm<M,I,O>
-         All Known Subinterfaces:
-         LearningAlgorithm.DFALearner<I>, LearningAlgorithm.MealyLearner<I,O>
-         All Known Implementing Classes:
-         AbstractAutomatonLStar, AbstractLStar, BaselineLStar, ClassicLStarMealy, ExtensibleAutomatonLStar, ExtensibleLStarDFA, ExtensibleLStarMealy, MealyDHC
-        
-         - Interface LearningAlgorithm.DFALearner<I>:
-         BaselineLStar, ExtensibleLStarDFA
-         - Interface LearningAlgorithm.MealyLearner<I,O>:
-         ExtensibleLStarMealy, MealyDHC
-         */
         // construct L* instance (almost classic Mealy version)
         // almost: we use words (Word<String>) in cells of the table 
         // instead of single outputs.        

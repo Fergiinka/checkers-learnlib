@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package diplomka.example2;
+package diplomka.example3;
 
 import static diplomka.example2.WBSlaveLearner.my_telnet;
 import static java.lang.System.exit;
@@ -76,23 +76,15 @@ public class WBSlave {
             my_telnet.sendCommand(examine + arch + ACK_O);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
-            
-            System.out.println(sb.toString());
 
             my_telnet.sendCommand(examine + arch + NOT_CYC_WRITE);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
-
-            System.out.println(sb.toString());
             
             my_telnet.sendCommand(examine + arch + NOT_CYC_READ);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
-
-            System.out.println(sb.toString());
-            
-            exit(0);
-            
+           
             String response = sb.toString();
 
             switch (response) {

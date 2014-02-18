@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package diplomka.example2;
+package diplomka.example3;
 
+import de.learnlib.algorithms.dhc.mealy.MealyDHC;
 import de.learnlib.algorithms.lstargeneric.ce.ObservationTableCEXHandlers;
 import de.learnlib.algorithms.lstargeneric.closing.ClosingStrategies;
 import de.learnlib.algorithms.lstargeneric.mealy.ExtensibleLStarMealy;
@@ -37,7 +38,6 @@ import de.learnlib.statistics.SimpleProfiler;
 import de.learnlib.statistics.StatisticSUL;
 
 import net.automatalib.automata.transout.MealyMachine;
-import net.automatalib.commons.dotutil.DOT;
 import net.automatalib.util.graphs.dot.GraphDOT;
 import net.automatalib.words.Alphabet;
 import net.automatalib.words.Word;
@@ -120,16 +120,10 @@ public class WBSlaveLearner {
          - Interface LearningAlgorithm.MealyLearner<I,O>:
          ExtensibleLStarMealy, MealyDHC
          */
-        // construct L* instance (almost classic Mealy version)
-        // almost: we use words (Word<String>) in cells of the table 
-        // instead of single outputs.        
-        MealyLearner<WBSlaveInput, String> lstar
-                = new ExtensibleLStarMealy<>(
+        MealyLearner<WBSlaveInput, String> mdhc
+                = new MealyDHC<>(
                         inputs, // input alphabet
-                        mqOracle, // mq oracle
-                        suffixes, // initial suffixes
-                        ObservationTableCEXHandlers.CLASSIC_LSTAR, // handling of counterexamples
-                        ClosingStrategies.CLOSE_FIRST // always choose first unclosedness found 
+                        mqOracle
                 );
 
         // create random walks equivalence test
@@ -147,7 +141,7 @@ public class WBSlaveLearner {
         // The experiment will execute the main loop of
         // active learning
         MealyExperiment<WBSlaveInput, String> experiment
-                = new MealyExperiment<>(lstar, randomWalks, inputs);
+                = new MealyExperiment<>(mdhc, randomWalks, inputs);
 
         // turn on time profiling
         experiment.setProfile(true);

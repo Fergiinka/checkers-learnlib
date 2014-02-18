@@ -76,23 +76,15 @@ public class WBSlave {
             my_telnet.sendCommand(examine + arch + ACK_O);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
-            
-            System.out.println(sb.toString());
 
             my_telnet.sendCommand(examine + arch + NOT_CYC_WRITE);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
 
-            System.out.println(sb.toString());
-            
             my_telnet.sendCommand(examine + arch + NOT_CYC_READ);
             my_telnet.readUntil(resultAnchor, false);
             sb.append(my_telnet.readResult(false));
 
-            System.out.println(sb.toString());
-            
-            exit(0);
-            
             String response = sb.toString();
 
             switch (response) {
