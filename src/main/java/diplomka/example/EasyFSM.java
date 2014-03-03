@@ -45,7 +45,7 @@ public class EasyFSM {
 
     // set the input signal
     public String execute_symbol(String s) {
-        System.out.println("execute_symbol DI " + s);
+        //System.out.println("execute_symbol DI " + s);
 
         StringBuilder sb = new StringBuilder();
 
@@ -63,7 +63,7 @@ public class EasyFSM {
             sb.append(my_telnet.readResult(false));
 
             String response = sb.toString();
-            System.out.println("DO " + s);
+            //System.out.println("DO " + s);
 
             switch (response) {
                 case D_0:

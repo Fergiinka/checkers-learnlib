@@ -58,7 +58,7 @@ import net.automatalib.words.impl.SimpleAlphabet;
  */
 public class EasyLearner {
 
-    public static AutoTelnetClient my_telnet = new AutoTelnetClient("localhost", 2002);
+    public static AutoTelnetClient my_telnet = new AutoTelnetClient("localhost", 2000);
 
     public static void main(String[] args) throws NoSuchMethodException, IOException {
 
@@ -118,9 +118,6 @@ public class EasyLearner {
                         ClosingStrategies.CLOSE_FIRST // always choose first unclosedness found 
                 );
         
-        
-// muzu importovat take: ClassicLStarMealy, 
-        
         // create random walks equivalence test
         MealyEquivalenceOracle<EasyInput, String> randomWalks
                 = new RandomWalkEQOracle<>(
@@ -157,7 +154,7 @@ public class EasyLearner {
         my_telnet.disconnect();
         
         // report results
-        System.out.println("-------------------------------------------------------");
+        /*System.out.println("-------------------------------------------------------");
 
         // profiling
         System.out.println(SimpleProfiler.getResults());
@@ -173,12 +170,16 @@ public class EasyLearner {
         // show model
         System.out.println();
         System.out.println("Model: ");
+        */
+        
+        //System.out.println(result);
         
         GraphDOT.write(result, inputs, System.out); // may throw IOException!
-        try (Writer w = new FileWriter("out_easyFSM.dot")) {
+        try (Writer w = new FileWriter("learned_design.dot")) {
             GraphDOT.write(result, inputs, w);
         }
-        System.out.println("-------------------------------------------------------");
+        //System.out.println("-------------------------------------------------------");
+        
 
     }
 
