@@ -22,6 +22,7 @@ import diplomka.WBSlave.WBSlave;
 import de.learnlib.algorithms.lstargeneric.ce.ObservationTableCEXHandlers;
 import de.learnlib.algorithms.lstargeneric.closing.ClosingStrategies;
 import de.learnlib.algorithms.lstargeneric.mealy.ClassicLStarMealy;
+import de.learnlib.api.EquivalenceOracle;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -33,6 +34,10 @@ import de.learnlib.api.EquivalenceOracle.MealyEquivalenceOracle;
 import de.learnlib.api.LearningAlgorithm.MealyLearner;
 import de.learnlib.api.SUL;
 import de.learnlib.cache.Caches;
+import de.learnlib.eqtests.basic.CompleteExplorationEQOracle;
+import de.learnlib.eqtests.basic.RandomWordsEQOracle;
+import de.learnlib.eqtests.basic.WMethodEQOracle;
+import de.learnlib.eqtests.basic.WpMethodEQOracle;
 import de.learnlib.eqtests.basic.mealy.RandomWalkEQOracle;
 import de.learnlib.experiments.Experiment.MealyExperiment;
 import de.learnlib.oracles.ResetCounterSUL;
@@ -114,18 +119,51 @@ public class WBSlaveLearner {
         MealyEquivalenceOracle<WBSlaveInput, String> randomWalks
                 = new RandomWalkEQOracle<>(
                         0.05, // reset SUL w/ this probability before a step 
-                        20, // max steps (overall)
+                        1000, // max steps (overall)
                         false, // reset step count after counterexample 
                         new Random(46346293), // make results reproducible 
                         sul // system under learning
                 );
 
+        
+        // create random words equivalence test
+        MealyEquivalenceOracle randomWords
+                = new RandomWordsEQOracle.MealyRandomWordsEQOracle(
+                        mqOracle,
+                        1,  // minLength
+                        20, // maxLength
+                        20, // maxTests
+                        new Random(46346293)
+                );
+        
+        // create WMethod equivalence test
+        // takes longer than randomWalks
+        MealyEquivalenceOracle<WBSlaveInput, String> WMethodTest
+                = new WMethodEQOracle.MealyWMethodEQOracle(
+                        1, //  maximum exploration depth
+                        mqOracle
+                );
+
+        // construct a WpMethod eq. oracle
+        EquivalenceOracle WpMethodTest
+                = new WpMethodEQOracle.MealyWpMethodEQOracle(
+                        4,  //  maximum exploration depth
+                        mqOracle
+                );
+
+        // construct a complete exploration eq. oracle
+        EquivalenceOracle completeExploration
+                = new CompleteExplorationEQOracle(
+                        mqOracle,
+                        1  // maximum exploration depth
+                );
+        
         // construct a learning experiment from
         // the learning algorithm and the random walks test.
         // The experiment will execute the main loop of
         // active learning
         MealyExperiment<WBSlaveInput, String> experiment
-                = new MealyExperiment<>(lstarmealy, randomWalks, inputs);
+                = new MealyExperiment<>(lstarmealy, randomWords, inputs);
 
         // turn on time profiling
         experiment.setProfile(true);

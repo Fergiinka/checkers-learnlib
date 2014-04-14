@@ -22,6 +22,7 @@ import diplomka.WBSlave.WBSlave;
 import de.learnlib.algorithms.lstargeneric.ce.ObservationTableCEXHandlers;
 import de.learnlib.algorithms.lstargeneric.closing.ClosingStrategies;
 import de.learnlib.algorithms.lstargeneric.mealy.ExtensibleLStarMealy;
+import de.learnlib.api.EquivalenceOracle;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -32,6 +33,10 @@ import de.learnlib.api.EquivalenceOracle.MealyEquivalenceOracle;
 import de.learnlib.api.LearningAlgorithm.MealyLearner;
 import de.learnlib.api.SUL;
 import de.learnlib.cache.Caches;
+import de.learnlib.eqtests.basic.CompleteExplorationEQOracle;
+import de.learnlib.eqtests.basic.RandomWordsEQOracle.MealyRandomWordsEQOracle;
+import de.learnlib.eqtests.basic.WMethodEQOracle.MealyWMethodEQOracle;
+import de.learnlib.eqtests.basic.WpMethodEQOracle.MealyWpMethodEQOracle;
 import de.learnlib.eqtests.basic.mealy.RandomWalkEQOracle;
 import de.learnlib.experiments.Experiment.MealyExperiment;
 import de.learnlib.oracles.ResetCounterSUL;
@@ -83,7 +88,7 @@ public class WBSlaveLearner {
         // use caching in order to avoid duplicate queries
         effectiveSul = Caches.createSULCache(inputs, effectiveSul);
 
-        SULOracle<WBSlaveInput, String> mqOracle = new SULOracle<>(effectiveSul);  //effectiveSul buggy
+        SULOracle<WBSlaveInput, String> mqOracle = new SULOracle<>(effectiveSul);
 
         // create initial set of suffixes
         List<Word<WBSlaveInput>> suffixes = new ArrayList<>();
@@ -112,18 +117,51 @@ public class WBSlaveLearner {
         MealyEquivalenceOracle<WBSlaveInput, String> randomWalks
                 = new RandomWalkEQOracle<>(
                         0.05, // reset SUL w/ this probability before a step 
-                        20, // max steps (overall)
+                        10000,   // max steps (overall)
                         false, // reset step count after counterexample 
                         new Random(46346293), // make results reproducible 
                         sul // system under learning
                 );
 
-        // construct a learning experiment from
-        // the learning algorithm and the random walks test.
+        // create random words equivalence test
+        MealyEquivalenceOracle randomWords
+                = new MealyRandomWordsEQOracle(
+                        mqOracle,
+                        1,  // minLength
+                        20, // maxLength
+                        20, // maxTests
+                        new Random(46346293)
+                );
+        
+        // create WMethod equivalence test
+        // takes longer than randomWalks
+        MealyEquivalenceOracle<WBSlaveInput, String> WMethodTest
+                = new MealyWMethodEQOracle(
+                        4, //  maximum exploration depth
+                        mqOracle
+                );
+
+        // construct a WpMethod eq. oracle
+        EquivalenceOracle WpMethodTest
+                = new MealyWpMethodEQOracle(
+                        3,  //  maximum exploration depth
+                        mqOracle
+                );
+
+        // construct a complete exploration eq. oracle
+        EquivalenceOracle completeExploration
+                = new CompleteExplorationEQOracle(
+                        mqOracle,
+                        3  // maximum exploration depth
+                );
+        
+        // Construct a learning experiment from
+        // the learning algorithm and the equivalence test.
         // The experiment will execute the main loop of
         // active learning
+ // ! CHANGE EQ. TEST HERE! //
         MealyExperiment<WBSlaveInput, String> experiment
-                = new MealyExperiment<>(lstar, randomWalks, inputs);
+                = new MealyExperiment<>(lstar, randomWords, inputs);
 
         // turn on time profiling
         experiment.setProfile(true);
@@ -164,7 +202,5 @@ public class WBSlaveLearner {
         try (Writer w = new FileWriter("learned_design.dot")) {
             GraphDOT.write(result, inputs, w);
         }
-
     }
-
 }
