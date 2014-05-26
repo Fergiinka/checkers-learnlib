@@ -16,7 +16,7 @@
  */
 package diplomka.WBSlave;
 
-import static diplomka.example2.WBSlaveLearner.my_telnet;
+import static diplomka.ExtLStar.WBSlaveLearner.my_telnet;
 
 /**
  *
@@ -54,14 +54,17 @@ public class WBSlave {
     private static final String CLK_1 = "CLK 1";
     private static final String RST_0 = "RST 0";
     private static final String RST_1 = "RST 1";
+    
+    public static int exec_symbols_num = 0;
 
     // set the input signal
     public String execute_symbol(String s) {
-        //System.out.println("execute_symbol DI " + s);
+        //System.out.println(s + ",");
 
         StringBuilder sb = new StringBuilder();
 
         if (s.equals(D_0) || s.equals(D_1) || s.equals(D_2) || s.equals(D_3) || s.equals(D_4) || s.equals(D_5) || s.equals(D_6) || s.equals(D_7)) {
+            exec_symbols_num++;
             // send commands over telnet
             my_telnet.sendCommand(force + arch + WE_I + s.toString().charAt(0));
             my_telnet.sendCommand(force + arch + CYC_I + s.toString().charAt(1));

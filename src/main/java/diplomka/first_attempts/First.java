@@ -1,4 +1,4 @@
-package diplomka.example;
+package diplomka.first_attempts;
 
 import java.io.IOException;
 import java.io.Writer;

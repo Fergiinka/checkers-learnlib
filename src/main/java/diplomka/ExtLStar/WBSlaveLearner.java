@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package diplomka.example2;
+package diplomka.ExtLStar;
 
 import diplomka.WBSlave.WBSlaveAdapter;
 import diplomka.WBSlave.WBSlaveInput;
@@ -117,8 +117,8 @@ public class WBSlaveLearner {
         MealyEquivalenceOracle<WBSlaveInput, String> randomWalks
                 = new RandomWalkEQOracle<>(
                         0.05, // reset SUL w/ this probability before a step 
-                        10000,   // max steps (overall)
-                        false, // reset step count after counterexample 
+                        100,   // max steps (overall)
+                        true, // reset step count after counterexample 
                         new Random(46346293), // make results reproducible 
                         sul // system under learning
                 );
@@ -127,9 +127,9 @@ public class WBSlaveLearner {
         MealyEquivalenceOracle randomWords
                 = new MealyRandomWordsEQOracle(
                         mqOracle,
-                        1,  // minLength
-                        20, // maxLength
-                        20, // maxTests
+                        100,  // minLength
+                        300, // maxLength
+                        300, // maxTests
                         new Random(46346293)
                 );
         
@@ -137,14 +137,14 @@ public class WBSlaveLearner {
         // takes longer than randomWalks
         MealyEquivalenceOracle<WBSlaveInput, String> WMethodTest
                 = new MealyWMethodEQOracle(
-                        4, //  maximum exploration depth
+                        1, //  maximum exploration depth
                         mqOracle
                 );
 
         // construct a WpMethod eq. oracle
         EquivalenceOracle WpMethodTest
                 = new MealyWpMethodEQOracle(
-                        3,  //  maximum exploration depth
+                        1,  //  maximum exploration depth
                         mqOracle
                 );
 
@@ -159,15 +159,15 @@ public class WBSlaveLearner {
         // the learning algorithm and the equivalence test.
         // The experiment will execute the main loop of
         // active learning
- // ! CHANGE EQ. TEST HERE! //
+        // Change the equivalence test here
         MealyExperiment<WBSlaveInput, String> experiment
-                = new MealyExperiment<>(lstar, randomWords, inputs);
+                = new MealyExperiment<>(lstar, randomWalks, inputs);
 
         // turn on time profiling
-        experiment.setProfile(true);
+        experiment.setProfile(false);
 
         // enable logging of models
-        experiment.setLogModels(true);
+        experiment.setLogModels(false);
 
         // run experiment
         experiment.run();
@@ -178,7 +178,7 @@ public class WBSlaveLearner {
         // close the connection with ModelSim by sending ESCAPE character
         my_telnet.disconnect();
 
-        /*
+        
          // report results
          System.out.println("-------------------------------------------------------");
          // profiling
@@ -192,9 +192,9 @@ public class WBSlaveLearner {
          // show model
          System.out.println();
          System.out.println("Model: ");
-         */
+         
         
-        GraphDOT.write(result, inputs, System.out); // may throw IOException!
+        //GraphDOT.write(result, inputs, System.out); // may throw IOException!
         //Writer w = DOT.createDotWriter(true);
         //GraphDOT.write(result, inputs, w);
         //w.close();        
@@ -202,5 +202,8 @@ public class WBSlaveLearner {
         try (Writer w = new FileWriter("learned_design.dot")) {
             GraphDOT.write(result, inputs, w);
         }
+        
+         System.out.println("Total number of executed symbols: " + WBSlave.exec_symbols_num);
+
     }
 }

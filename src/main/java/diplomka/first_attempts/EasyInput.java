@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package diplomka.example;
+package diplomka.first_attempts;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
